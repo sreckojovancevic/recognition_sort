@@ -1,0 +1,8 @@
+[package]
+name = "recognition-sort"
+version = "0.1.0"
+edition = "2021"
+description = "Non-comparison integer sorting through the Recognition Organization lens, with honest benchmarks."
+license = "MIT"
+
+# Jedan binarni program po fajlu u src/bin/ (bez eksternih zavisnosti).

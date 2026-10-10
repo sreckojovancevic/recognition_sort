@@ -5,6 +5,8 @@
 > lens, with honest, reproducible benchmarks.
 
 **Conceptual parent:** [recognition-organization-proposition](https://github.com/sreckojovancevic/recognition-organization-proposition)
+**Governing concept:** [`KONCEPT.md`](./KONCEPT.md) — the idea stands above any single
+application; sorting and the benchmark are *one* application, not the boundary.
 
 ---
 
@@ -89,6 +91,24 @@ is ~1.5–2.5× depending on scale.
 
 ---
 
+## Beyond sorting: order maintenance (`pozicioni_broj.rs`)
+
+Sorting is one application of the recognition principle, not its boundary.
+When position *cannot* be derived from the value — sparse, arbitrary elements —
+it is carried as **stored context**: a rational **position key** (a string
+treated as the fraction `0.<digits>`). Between any two keys there is always a
+third (rationals are dense), so an element can be inserted **between** two
+others by computing a key between theirs — **without re-ranking anyone else**.
+
+This gives what radix/counting do *not*: **order maintenance under insertion**.
+The cost is that repeated insertion into the same gap lengthens the key (it
+grows in length instead of hitting a precision wall, as `f64` would). The
+element gains a *second identity* — where it stands — without changing its value.
+This is the "stored relation" branch described in [`KONCEPT.md`](./KONCEPT.md),
+and it is a different capability, not a faster sort.
+
+---
+
 ## Limits (stated plainly)
 
 - **Specialized, not universal.** Works on what decomposes into a bounded
@@ -112,6 +132,8 @@ is ~1.5–2.5× depending on scale.
 | `rang_radix_1m.rs` | radix base 10, 1M elements |
 | `rang_radix256_1m.rs` | radix base 256 (byte by byte), 1M elements |
 | `benchmark_full.rs` | time + measured peak memory + correctness, 100 → 100M |
+| `pozicioni_broj.rs` | rational position key: insertion between two without re-ranking (order maintenance) |
+| `KONCEPT.md` | the governing concept — stands above any single application |
 | `MERENJA.md` | full measurements and behavior reading (detailed) |
 
 ## Build & run
@@ -124,8 +146,8 @@ cargo run --release --bin benchmark_full
 ```
 
 Other binaries: `samosvesni_broj`, `rang_broj`, `sort_apsolutni`,
-`rang_radix_1m`, `rang_radix256_1m`. **Always use `--release`** — debug
-numbers mislead.
+`rang_radix_1m`, `rang_radix256_1m`, `pozicioni_broj`. **Always use `--release`**
+— debug numbers mislead.
 
 (100M `u32` needs ~1.6 GB peak — trim the large sizes in `sizes` if RAM
 is tight.)

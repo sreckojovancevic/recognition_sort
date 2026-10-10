@@ -34,6 +34,36 @@ What it offers:
 
 ---
 
+## Quick look
+
+A trimmed run of [`verbose_demo.rs`](./src/bin/verbose_demo.rs) — each number
+recognizes its own place, with **zero comparisons between numbers**, negatives
+and duplicates included (output in Serbian; `koren` = origin/min,
+`mesto` = slot):
+
+```text
+$ cargo run --release --bin verbose_demo -- -5 42 -12 7 0 7
+Ulaz (razbacano): [-5, 42, -12, 7, 0, 7]
+Koren (offset) = min = -12
+
+Broj  -5 ... -5 - -12 = 7    ->  mesto (indeks) 7
+Broj  42 ... 42 - -12 = 54   ->  mesto (indeks) 54
+Broj -12 ... -12 - -12 = 0   ->  mesto (indeks) 0
+...
+Organizovano: [-12, -5, 0, 7, 7, 42]
+
+Poređenja IZMEĐU brojeva:         (comparisons between numbers)
+   prepoznavanje : 0              (recognition — each number found its own place)
+   insertion sort: 10            (a comparison sort, for contrast)
+
+Isti skup, obrnut redosled dolaska -> isti rezultat
+(same set, reversed arrival order -> same result: position comes from identity, not order)
+```
+
+Run it with your own numbers (negatives welcome): `... -- 3 -8 3 100 -8 0`.
+
+---
+
 ## The recognition view
 
 A number is treated as a **self-locating entity**:

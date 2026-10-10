@@ -25,8 +25,9 @@ What it offers:
    digit of a number and the character of a string are the same thing.
 2. **Honest measurement.** A reproducible benchmark of time, **actually
    measured** peak memory (a counting global allocator, pure `std`, no
-   external crates), and correctness (checked against `std::sort`) across
-   scale — read as *behavior*, not as a leaderboard.
+   external crates — see [`ALLOCATOR.md`](./ALLOCATOR.md)), and correctness
+   (checked against `std::sort`) across scale — read as *behavior*, not as a
+   leaderboard.
 
 > The point is not "a new sort" and not "a faster sort in general." The point
 > is the unifying principle and the honest behavioral picture.
@@ -51,6 +52,25 @@ position(n) = recognize(n)        // derived from the number itself
 No pairwise comparison decides order in either case. This is verified at
 runtime: the sort is checked against `std::sort` on every input, including
 1,000,000+ element stress tests.
+
+See [`verbose_demo.rs`](./src/bin/verbose_demo.rs) for a step-by-step walk on a
+tiny array — it prints how each number recognizes its own place, making the
+mechanism visible rather than abstract.
+
+---
+
+## Relation to the parent project
+
+This is not a trick that only works on integers. The same recognition
+principle drives the string engine in the parent project,
+[recognition-organization-proposition](https://github.com/sreckojovancevic/recognition-organization-proposition):
+there, each string recognizes itself **character by character** (MSD) and
+places itself with no comparison. Here, each number recognizes itself **digit
+by digit / byte by byte** (radix). **A digit of a number and a character of a
+string are the same thing** to the mechanism — an entity reading one place of
+its own identity and acting on it. Numbers and strings are two instances of one
+idea: organization by self-recognition. The parent repo is where that broader,
+non-numeric picture lives.
 
 ---
 
@@ -119,6 +139,15 @@ and it is a different capability, not a faster sort.
 - **Direct addressing has a space wall.** `value - min` placement needs an
   array spanning the whole value range (97 slots for 4 numbers in `[3..99]`;
   a billion for `[3, 1e9]`). Radix is precisely the fix (space = base + n).
+- **Negatives and wider types (`u64`/`i64`) — how it would extend, not yet
+  implemented.** The current code uses `u32`, which is enough to demonstrate
+  the concept and measure performance. The principle carries over cleanly in
+  theory: negatives are handled by the same **offset by `min`** already used in
+  `sort_apsolutni.rs` (`value - min` makes every key non-negative, so the sign
+  disappears before placement); wider types just mean **more passes** (an
+  `i64`/`u64` key is up to 8 base-256 bytes instead of 4). Nothing about the
+  mechanism changes — only the pass count and the offset step. This note states
+  the path honestly; it does not promise an implementation that isn't here yet.
 
 ---
 
@@ -126,6 +155,7 @@ and it is a different capability, not a faster sort.
 
 | File | What it shows |
 |---|---|
+| `verbose_demo.rs` | step-by-step on a tiny array: each number recognizes its own place (the mechanism made visible) |
 | `samosvesni_broj.rs` | the self-locating number: position = value − origin, O(n), 0 comparisons |
 | `rang_broj.rs` | dual identity (value + rank); when rank is redundant vs informative |
 | `sort_apsolutni.rs` | arbitrary integers, 0 comparisons; the space cost |
@@ -135,6 +165,7 @@ and it is a different capability, not a faster sort.
 | `pozicioni_broj.rs` | rational position key: insertion between two without re-ranking (order maintenance) |
 | `KONCEPT.md` | the governing concept — stands above any single application |
 | `MERENJA.md` | full measurements and behavior reading (detailed) |
+| `ALLOCATOR.md` | how the real peak-memory measurement works (reusable `std`-only technique) |
 
 ## Build & run
 
@@ -145,9 +176,9 @@ Source files live in `src/bin/`.
 cargo run --release --bin benchmark_full
 ```
 
-Other binaries: `samosvesni_broj`, `rang_broj`, `sort_apsolutni`,
+Other binaries: `verbose_demo`, `samosvesni_broj`, `rang_broj`, `sort_apsolutni`,
 `rang_radix_1m`, `rang_radix256_1m`, `pozicioni_broj`. **Always use `--release`**
-— debug numbers mislead.
+— debug numbers mislead. (`verbose_demo` is the friendliest starting point.)
 
 (100M `u32` needs ~1.6 GB peak — trim the large sizes in `sizes` if RAM
 is tight.)
@@ -156,6 +187,19 @@ Prefer plain `rustc`? Each file is standalone:
 `rustc -O src/bin/benchmark_full.rs && ./benchmark_full`.
 
 ---
+
+## Acknowledgments
+
+Concept, intuition, and direction by **Srećko Jovančević** — the idea of the
+self-aware number (an entity that recognizes its own place), the framing, and
+the honesty requirements are his.
+
+Implementation, verification (the runtime checks against `std::sort`, the
+fuzz/stress tests), the measurement harness, and the documentation were
+developed in collaboration with **Claude (Anthropic)**, working from that
+direction. Every claim here was run and measured, not asserted — the role of
+the assistant was to build, test, and keep the framing honest, not to originate
+the idea.
 
 ## License
 

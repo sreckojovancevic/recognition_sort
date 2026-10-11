@@ -159,6 +159,37 @@ and it is a different capability, not a faster sort.
 
 ---
 
+## Streaming / pipeline (`pipeline_demo.rs`)
+
+The same principle fits a **data stream** as a two-stage pipeline (assembly line):
+
+```
+source (stream) -> [Stage 1: run generation] -> [Stage 2: k-way merge] -> output
+                     block -> local direct         merge run heads into
+                     addressing (NO comparison)     a global order (COMPARES)
+```
+
+Stage 1 sorts each incoming block with local direct addressing — **zero
+comparisons within a block**. Stage 2 merges the sorted runs into a globally
+ordered stream. Honest split: the per-block work is comparison-free, but
+**gluing blocks into a global order requires comparison at the merge** — for
+arbitrary values there is no way around it (a comparison-free global result
+would need the whole range in memory, or a consecutive-integer stream with
+emit-on-complete).
+
+Two builds of the same structure (identical output, different execution):
+
+```bash
+cargo run --release --bin pipeline_demo -- --sekv      # stages one after another
+cargo run --release --bin pipeline_demo -- --paralel   # stages as threads + channel (mpsc)
+```
+
+The parallel build runs Stage 1 and Stage 2 on separate threads connected by a
+channel — a real pipeline. For sorting the gain is structural (stages overlap),
+not a large speedup, since the merge must see all runs; the point is the shape.
+
+---
+
 ## Limits (stated plainly)
 
 - **Specialized, not universal.** Works on what decomposes into a bounded
@@ -193,6 +224,7 @@ and it is a different capability, not a faster sort.
 | `rang_radix256_1m.rs` | radix base 256 (byte by byte), 1M elements |
 | `benchmark_full.rs` | time + measured peak memory + correctness, 100 → 100M |
 | `pozicioni_broj.rs` | rational position key: insertion between two without re-ranking (order maintenance) |
+| `pipeline_demo.rs` | two-stage streaming pipeline: comparison-free run generation + k-way merge (`--sekv`/`--paralel`) |
 | `KONCEPT.md` | the governing concept — stands above any single application |
 | `MERENJA.md` | full measurements and behavior reading (detailed) |
 | `ALLOCATOR.md` | how the real peak-memory measurement works (reusable `std`-only technique) |
@@ -207,8 +239,9 @@ cargo run --release --bin benchmark_full
 ```
 
 Other binaries: `verbose_demo`, `samosvesni_broj`, `rang_broj`, `sort_apsolutni`,
-`rang_radix_1m`, `rang_radix256_1m`, `pozicioni_broj`. **Always use `--release`**
-— debug numbers mislead. (`verbose_demo` is the friendliest starting point.)
+`rang_radix_1m`, `rang_radix256_1m`, `pozicioni_broj`, `pipeline_demo`. **Always
+use `--release`** — debug numbers mislead. (`verbose_demo` is the friendliest
+starting point.)
 
 (100M `u32` needs ~1.6 GB peak — trim the large sizes in `sizes` if RAM
 is tight.)

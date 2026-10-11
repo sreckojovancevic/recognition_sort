@@ -81,12 +81,26 @@ fn main() {
     let mn = *ulaz.iter().min().unwrap();
     let mx = *ulaz.iter().max().unwrap();
     let opseg: i128 = (mx as i128) - (mn as i128) + 1;
-    const MAX_SLOTOVA: i128 = 200_000_000;
-    if opseg > MAX_SLOTOVA {
-        println!("Opseg = {} (od {} do {}).", opseg, mn, mx);
-        println!("PREVELIKO za direktno adresiranje: tražilo bi niz od {} mesta.", opseg);
-        println!("Ovo je tačno prostorni zid iz LIMITS — direktno adresiranje: prostor ~ opseg.");
-        println!("Za ovako širok/redak opseg koristi radix (prostor = baza + n, nezavisno od opsega).");
+
+    // Odluka direktno-adresiranje vs radix: plafon (memorija) + gustina (isplativost).
+    const MAX_SLOTOVA: i128 = 200_000_000;   // tvrd plafon (proxy za memoriju)
+    const PRAG_GUSTINE: f64 = 0.05;          // ispod 5% popunjenosti -> radix
+    const MIN_ZA_GUSTINU: i128 = 10_000;     // ispod ovog demo uvek prikazuje korake
+    let gustina = ulaz.len() as f64 / opseg as f64;
+    let previse_veliko = opseg > MAX_SLOTOVA;
+    let previse_retko = opseg > MIN_ZA_GUSTINU && gustina < PRAG_GUSTINE;
+    if previse_veliko || previse_retko {
+        println!("Opseg = {} (od {} do {}), gustina = {:.4}% ({} brojeva).",
+                 opseg, mn, mx, gustina * 100.0, ulaz.len());
+        if previse_veliko {
+            println!("-> PREVELIK opseg za direktno adresiranje (plafon {} slotova).", MAX_SLOTOVA);
+        }
+        if previse_retko {
+            println!("-> PRERETKO: ispod {}% popunjenosti, većina slotova bi bila prazna.",
+                     PRAG_GUSTINE * 100.0);
+        }
+        println!("Ovo je prostorni zid iz LIMITS. Za ovakav ulaz koristi radix");
+        println!("(prostor = baza + n, nezavisno od opsega i gustine).");
         return;
     }
 

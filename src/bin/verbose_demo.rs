@@ -75,6 +75,21 @@ fn main() {
 
     println!("Ulaz (razbacano): {:?}\n", ulaz);
 
+    // --- Prostorni zid: direktno adresiranje traži niz veličine opsega ---
+    // Opseg računamo u i128 da se ne prelije (mx - mn može preći i64 za
+    // ekstremne vrednosti, npr. i64::MIN .. i64::MAX = 2^64 - 1).
+    let mn = *ulaz.iter().min().unwrap();
+    let mx = *ulaz.iter().max().unwrap();
+    let opseg: i128 = (mx as i128) - (mn as i128) + 1;
+    const MAX_SLOTOVA: i128 = 200_000_000;
+    if opseg > MAX_SLOTOVA {
+        println!("Opseg = {} (od {} do {}).", opseg, mn, mx);
+        println!("PREVELIKO za direktno adresiranje: tražilo bi niz od {} mesta.", opseg);
+        println!("Ovo je tačno prostorni zid iz LIMITS — direktno adresiranje: prostor ~ opseg.");
+        println!("Za ovako širok/redak opseg koristi radix (prostor = baza + n, nezavisno od opsega).");
+        return;
+    }
+
     // --- Mehanizam, korak po korak ---
     let (izlaz, por_rec) = organizuj(&ulaz, true);
     println!("\nOrganizovano: {:?}", izlaz);

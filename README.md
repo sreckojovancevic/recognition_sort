@@ -223,6 +223,7 @@ not a large speedup, since the merge must see all runs; the point is the shape.
 | `rang_radix_1m.rs` | radix base 10, 1M elements |
 | `rang_radix256_1m.rs` | radix base 256 (byte by byte), 1M elements |
 | `benchmark_full.rs` | time + measured peak memory + correctness, 100 → 100M |
+| `bench_vs_std.rs` | radix256 vs `std::sort` vs `std::sort_unstable`: time, speedup, memory, correctness (100 → 1B with `--huge`) |
 | `pozicioni_broj.rs` | rational position key: insertion between two without re-ranking (order maintenance) |
 | `pipeline_demo.rs` | two-stage streaming pipeline: comparison-free run generation + k-way merge (`--sekv`/`--paralel`) |
 | `KONCEPT.md` | the governing concept — stands above any single application |
@@ -239,9 +240,9 @@ cargo run --release --bin benchmark_full
 ```
 
 Other binaries: `verbose_demo`, `samosvesni_broj`, `rang_broj`, `sort_apsolutni`,
-`rang_radix_1m`, `rang_radix256_1m`, `pozicioni_broj`, `pipeline_demo`. **Always
-use `--release`** — debug numbers mislead. (`verbose_demo` is the friendliest
-starting point.)
+`rang_radix_1m`, `rang_radix256_1m`, `pozicioni_broj`, `pipeline_demo`,
+`bench_vs_std`. **Always use `--release`** — debug numbers mislead.
+(`verbose_demo` is the friendliest starting point.)
 
 (100M `u32` needs ~1.6 GB peak — trim the large sizes in `sizes` if RAM
 is tight.)

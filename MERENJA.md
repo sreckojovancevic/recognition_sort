@@ -100,6 +100,37 @@ memoriju (broječi alokator u čistom std-u) i korektnost (poređenje sa
   raste linearno (100M ulaza 381 MB → radix 1144 MB). `std::sort` je in-place
   (~1×). Brže na razmeri, ali po ceni ~3× memorije. Kompromis, izmeren.
 
+## radix256 vs std::sort vs std::sort_unstable — do 1 milijarde
+
+Rust std **nema radix sort**, pa je "radix strana" naš `radix256`; poredi se sa
+`std::sort` (stabilan, Timsort) i `std::sort_unstable` (pdqsort, vrlo brz).
+`bench_vs_std.rs`, `u32`, opseg do 100M, `rustc -O`, 32 GB RAM (za 1B: `--huge`).
+
+| N | radix256 | std::sort | sort_unstable | r/sort | r/unst | radix mem |
+|---|---|---|---|---|---|---|
+| 100 | 0.0 ms | 0.0 ms | 0.0 ms | 0.59× | 0.14× | ~0 |
+| 1.000 | 0.0 ms | 0.0 ms | 0.0 ms | 0.92× | 0.60× | ~0 |
+| 10.000 | 0.1 ms | 0.2 ms | 0.1 ms | 1.52× | 0.92× | ~0 |
+| 10.000.000 | 97.5 ms | 225.1 ms | 148.5 ms | 2.31× | 1.52× | 0.11 GB |
+| 100.000.000 | 1028.7 ms | 2649.8 ms | 1808.6 ms | 2.58× | 1.76× | 1.12 GB |
+| 1.000.000.000 | 11493 ms | 30285 ms | 19824 ms | 2.64× | **1.72×** | 11.18 GB |
+
+`r/sort`, `r/unst` = ubrzanje (std vreme / radix vreme); > 1 znači radix brži.
+
+**Čitanje (pošteno):**
+
+- **Tuče oba std sorta na razmeri** — ne samo stabilni. Protiv `std::sort`
+  ~2.3–2.64×; protiv brzog `std::sort_unstable` (pdqsort) ~1.5–1.76×. Pobediti
+  `sort_unstable` nije lako — to je ozbiljan protivnik, nije slamnati čovek.
+- **Potvrđeno na 1 milijardi** elemenata, korektno: radix 11.5 s vs unstable
+  19.8 s vs stable 30.3 s.
+- **Prelomna tačka ~10.000.** Ispod toga std sortovi pobeđuju (na N=100
+  `sort_unstable` je ~7× brži — `r/unst` 0.14×): radix režija nadjača kad nema
+  šta da se radi.
+- **Plato ~1.7× vs unstable** (100M 1.76× → 1B 1.72×) — zasićenje memorijske
+  propusnosti, isto kao gore.
+- **Cena: 11.18 GB** za milijardu (~3× ulaz). Zid koji se plaća za brzinu.
+
 ## Pošten zaključak
 
 - Smeštanje po poziciji/rangu je **O(n), bez poređenja** — stvarno i uvek.

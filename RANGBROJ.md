@@ -118,6 +118,23 @@ In short:
 RangBroj = Identity + Position
 ```
 
+## Zero is just a position (a passage, not a wall)
+
+In this model **zero has no privileged status**. Placement is by
+`value - origin`, so the sign disappears before placement — zero is simply one
+position the sequence passes through, not a boundary. As a RangBroj it is:
+
+```
+n@0 = -1 < 0 < 1
+```
+
+`src/bin/verbose_demo.rs` shows this directly: `meta(0) = (-1, 0, 1)`, and
+negatives sort with no special case (`-5 - (-12) = 7`, like any positive). The
+step from negative to positive goes *through* zero smoothly.
+
+Honest scope: what the code confirms is only this one clean thing — that in
+ordering/placement zero is a **passage, not a wall**. Nothing more is claimed.
+
 ---
 
 *See [`src/bin/rang_broj.rs`](./src/bin/rang_broj.rs) for the dual-identity

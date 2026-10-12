@@ -242,6 +242,10 @@ design (what to measure) — **Claude** and **ChatGPT**.
   `i64`/`u64` key is up to 8 base-256 bytes instead of 4). Nothing about the
   mechanism changes — only the pass count and the offset step. This note states
   the path honestly; it does not promise an implementation that isn't here yet.
+  One nice consequence of the offset model: **zero gets no special status** — it
+  is just a position the sequence passes through (`n@0 = -1 < 0 < 1`), a passage
+  not a wall (`verbose_demo` shows `meta(0) = (-1, 0, 1)`; see
+  [`RANGBROJ.md`](./RANGBROJ.md)).
 
 ---
 

@@ -85,7 +85,9 @@ runtime: the sort is checked against `std::sort` on every input, including
 
 See [`verbose_demo.rs`](./src/bin/verbose_demo.rs) for a step-by-step walk on a
 tiny array — it prints how each number recognizes its own place, making the
-mechanism visible rather than abstract.
+mechanism visible rather than abstract. For the idea in words — a number whose
+identity is *value + position* (`n@3 = 2 < 3 < 4`) — see
+[`RANGBROJ.md`](./RANGBROJ.md).
 
 ---
 
@@ -258,6 +260,7 @@ design (what to measure) — **Claude** and **ChatGPT**.
 | `pozicioni_broj.rs` | rational position key: insertion between two without re-ranking (order maintenance) |
 | `pipeline_demo.rs` | two-stage streaming pipeline: comparison-free run generation + k-way merge (`--sekv`/`--paralel`) |
 | `KONCEPT.md` | the governing concept — stands above any single application |
+| `RANGBROJ.md` | the RangBroj (RankNumber) idea: a number whose identity is value + position (`n@3 = 2 < 3 < 4`) |
 | `MERENJA.md` | full measurements and behavior reading (detailed) |
 | `ALLOCATOR.md` | how the real peak-memory measurement works (reusable `std`-only technique) |
 | `radix_lens_bench/` | performance suite (separate crate-using subproject): in-memory parallel radix + external/parallel sort with packed loser-tree merge; full report in `IZVESTAJ.md` |

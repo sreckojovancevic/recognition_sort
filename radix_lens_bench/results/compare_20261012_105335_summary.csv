@@ -1,0 +1,7 @@
+﻿oznaka,opis,metoda,vrsta,ukupno_med_ms,min_ms,max_ms,priprema_med_ms,merge_med_ms,mem_mib,ispravno
+mem,"Standardni sortovi u memoriji (5 ponavljanja)",radix-lens-radix,in-memory,374,358,457,,,382,PROLAZ
+mem,"Standardni sortovi u memoriji (5 ponavljanja)",radix-lens-radix-1nit,in-memory,788,777,794,,,381,PROLAZ
+mem,"Standardni sortovi u memoriji (5 ponavljanja)",std-sort,in-memory,2645,2622,2884,,,191,PROLAZ
+mem,"Standardni sortovi u memoriji (5 ponavljanja)",std-sort-unstable,in-memory,1802,1772,1824,,,0,PROLAZ
+mem,"Standardni sortovi u memoriji (5 ponavljanja)",rayon-par-sort,in-memory,985,974,1032,,,383,PROLAZ
+mem,"Standardni sortovi u memoriji (5 ponavljanja)",rayon-par-sort-unstable,in-memory,596,555,606,,,0,PROLAZ

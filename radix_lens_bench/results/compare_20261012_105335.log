@@ -1,0 +1,27 @@
+﻿Radix LENS - komparativni benchmark, 20261012_105335
+Napomena: faze f1-f6 koriste trenutni kod; refaktor merge koda (11.10.) je ugrađen u sve, pa se ne vidi kao zaseban korak.
+Napomena: sort u memoriji drži ceo niz i ne radi I/O; eksterno sortiranje radi sa ~150 MiB i upisuje/čita fajlove.
+
+=== mem: Standardni sortovi u memoriji (5 ponavljanja) ===
+[*] Poređenje sa standardnim sortovima u memoriji: 100000000 elemenata, 5 ponavljanja, 8 rayon niti, seed Some(42), RNG Chacha
+    Napomena: sort u memoriji drži ceo niz (381 MiB) i ne radi I/O; eksterno sortiranje radi sa ~150 MiB i upisuje/čita fajlove.
+    Ulaz generisan za 488 ms, otisak 5401f572beb93e6a
+| Metoda | Opis | Medijana | Min | Max | Dodatna memorija (peak) | Ispravno? |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| radix-lens-radix | Radix LENS LSD radix (N niti, bez poređenja) | 374 ms | 358 | 457 | 382 MiB | PROLAZ |
+SUMMARY,mem,radix-lens-radix,in-memory,374,358,457,,,382,PROLAZ
+    … pauza 10 s pre metode radix-lens-radix-1nit
+| radix-lens-radix-1nit | Radix LENS LSD radix (1 nit, bez poređenja) | 788 ms | 777 | 794 | 381 MiB | PROLAZ |
+SUMMARY,mem,radix-lens-radix-1nit,in-memory,788,777,794,,,381,PROLAZ
+    … pauza 10 s pre metode std-sort
+| std-sort | slice::sort (stabilan, 1 nit, poređenje) | 2645 ms | 2622 | 2884 | 191 MiB | PROLAZ |
+SUMMARY,mem,std-sort,in-memory,2645,2622,2884,,,191,PROLAZ
+    … pauza 10 s pre metode std-sort-unstable
+| std-sort-unstable | slice::sort_unstable (1 nit, poređenje) | 1802 ms | 1772 | 1824 | 0 MiB | PROLAZ |
+SUMMARY,mem,std-sort-unstable,in-memory,1802,1772,1824,,,0,PROLAZ
+    … pauza 10 s pre metode rayon-par-sort
+| rayon-par-sort | rayon par_sort (stabilan, N niti, poređenje) | 985 ms | 974 | 1032 | 383 MiB | PROLAZ |
+    … pauza 10 s pre metode rayon-par-sort-unstable
+SUMMARY,mem,rayon-par-sort,in-memory,985,974,1032,,,383,PROLAZ
+| rayon-par-sort-unstable | rayon par_sort_unstable (N niti, poređenje) | 596 ms | 555 | 606 | 0 MiB | PROLAZ |
+SUMMARY,mem,rayon-par-sort-unstable,in-memory,596,555,606,,,0,PROLAZ

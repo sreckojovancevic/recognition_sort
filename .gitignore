@@ -1,3 +1,9 @@
 /target
+**/target
 **/*.rs.bk
 .DS_Store
+*.exe
+*.pdb
+*.back
+*.back[0-9]*
+*.json.gz

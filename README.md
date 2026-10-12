@@ -190,6 +190,37 @@ not a large speedup, since the merge must see all runs; the point is the shape.
 
 ---
 
+## Performance suite (`radix_lens_bench/`)
+
+A separate subproject, [`radix_lens_bench/`](./radix_lens_bench), stress-tests
+the idea at 100M+ scale. It is **not pure std** — it uses `rayon`, `clap`,
+`serde`, `rand` — so keep it mentally apart from the demos above: the demos
+explain the idea, the suite engineers it. It does in-memory parallel radix and
+a full **external + parallel** sort (block sort → multi-way merge) with a
+**packed loser-tree** merge and disk I/O.
+
+Headline measured results (author's machine, 100M `u32`, seed 42, input
+fingerprint `5401f572beb93e6a`; full write-up in
+[`radix_lens_bench/IZVESTAJ.md`](./radix_lens_bench/IZVESTAJ.md)):
+
+- **In-memory, 1 thread:** radix **2.29×** faster than `std::sort_unstable`
+  (788 vs 1802 ms) and **3.36×** than `std::sort` (vs 2645 ms). This extends the
+  `recognition_sort` finding (which compared only to stable `std::sort`, ~2.47×)
+  to the *stronger* opponent `sort_unstable`.
+- **In-memory, 8 threads:** **1.26–1.59×** faster than `rayon par_sort_unstable`,
+  ~2.6× than `rayon par_sort`.
+- **External pipeline:** optimized from **2821 ms → ~720 ms** (≈3.9×) at ~146 MiB
+  resident, writing/reading files — correct on bit-identical input every run.
+- **Cost / limits (measured):** auxiliary buffer ≈ input size (~381 MiB in
+  memory); scales to threads worse than comparison sorts; loses below N≈10,000;
+  integer fixed-width keys only. See `IZVESTAJ.md` for the honest full ledger.
+
+**Provenance (stated honestly):** concept & direction — Srećko Jovančević;
+benchmark code — primarily **Gemini**, with revisions/fixes by **Claude**; test
+design (what to measure) — **Claude** and **ChatGPT**.
+
+---
+
 ## Limits (stated plainly)
 
 - **Specialized, not universal.** Works on what decomposes into a bounded
@@ -229,6 +260,7 @@ not a large speedup, since the merge must see all runs; the point is the shape.
 | `KONCEPT.md` | the governing concept — stands above any single application |
 | `MERENJA.md` | full measurements and behavior reading (detailed) |
 | `ALLOCATOR.md` | how the real peak-memory measurement works (reusable `std`-only technique) |
+| `radix_lens_bench/` | performance suite (separate crate-using subproject): in-memory parallel radix + external/parallel sort with packed loser-tree merge; full report in `IZVESTAJ.md` |
 
 ## Build & run
 
@@ -270,3 +302,6 @@ the idea.
 MIT. If this contributes to your work, a citation is welcome.
 
 **Status:** study and benchmark, work in progress, shown as-is.
+
+> If this serves you, use it. If not, it's measured honestly so you can decide —
+> and it's here to explore. The point was never to win, only to be measurable.

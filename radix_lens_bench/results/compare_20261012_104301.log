@@ -1,0 +1,251 @@
+﻿Radix LENS - komparativni benchmark, 20261012_104301
+Napomena: faze f1-f6 koriste trenutni kod; refaktor merge koda (11.10.) je ugraÄ‘en u sve, pa se ne vidi kao zaseban korak.
+Napomena: sort u memoriji drÅ¾i ceo niz i ne radi I/O; eksterno sortiranje radi sa ~150 MiB i upisuje/Äita fajlove.
+
+=== mem: Standardni sortovi u memoriji (5 ponavljanja) ===
+[*] Pore─æenje sa standardnim sortovima u memoriji: 100000000 elemenata, 5 ponavljanja, 8 rayon niti, seed Some(42), RNG Chacha
+    Napomena: sort u memoriji dr┼╛i ceo niz (381 MiB) i ne radi I/O; eksterno sortiranje radi sa ~150 MiB i upisuje/─ìita fajlove.
+    Ulaz generisan za 486 ms, otisak 5401f572beb93e6a
+| Metoda | Opis | Medijana | Min | Max | Dodatna memorija (peak) | Ispravno? |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| radix-lens-radix | Radix LENS LSD radix (N niti, bez pore─æenja) | 372 ms | 318 | 378 | 381 MiB | PROLAZ |
+SUMMARY,mem,radix-lens-radix,in-memory,372,318,378,,,381,PROLAZ
+    ΓÇª pauza 10 s pre metode std-sort
+    ΓÇª pauza 10 s pre metode std-sort-unstable
+| std-sort | slice::sort (stabilan, 1 nit, pore─æenje) | 2613 ms | 2594 | 2645 | 191 MiB | PROLAZ |
+SUMMARY,mem,std-sort,in-memory,2613,2594,2645,,,191,PROLAZ
+| std-sort-unstable | slice::sort_unstable (1 nit, pore─æenje) | 1731 ms | 1728 | 1744 | 0 MiB | PROLAZ |
+SUMMARY,mem,std-sort-unstable,in-memory,1731,1728,1744,,,0,PROLAZ
+    ΓÇª pauza 10 s pre metode rayon-par-sort
+    ΓÇª pauza 10 s pre metode rayon-par-sort-unstable
+| rayon-par-sort | rayon par_sort (stabilan, N niti, pore─æenje) | 923 ms | 916 | 927 | 383 MiB | PROLAZ |
+SUMMARY,mem,rayon-par-sort,in-memory,923,916,927,,,383,PROLAZ
+| rayon-par-sort-unstable | rayon par_sort_unstable (N niti, pore─æenje) | 468 ms | 461 | 484 | 0 MiB | PROLAZ |
+SUMMARY,mem,rayon-par-sort-unstable,in-memory,468,461,484,,,0,PROLAZ
+
+=== f1-pocetak: OptimizedHeap, sekvencijalna priprema, std sort ===
+[*] Pokretanje My Radix LENS v1.2.2 (Power-of-2 Loser Tree Engine)...
+    Scenario: External
+    Ciljni disk/direktorijum: C:\temp_sort_pipe1
+    N (Elementi): 100000000
+    Veli─ìina bloka: 32 MiB
+    Bafer ─ìitanja run-ova: 2048 KiB
+    Izlazni bafer pisanja: 4096 KiB
+    Niti (Threads): 8
+    Ponavljanja: 15
+    Pipeline re┼╛im: false, Dubina: 1
+    fsync: false
+    Seed: 42
+    Brojanje pore─æenja: false
+    Sortiranje bloka: Std
+    RNG: Chacha
+    Writer niti: 1
+    Merge niti: sekvencijalno
+    Strategija: OptimizedHeap
+
+-------------------------------------------------------------
+  TESTIRANJE STRATEGIJE: OptimizedHeap
+-------------------------------------------------------------
+
+--- REZULTAT ZA STRATEGIJU: OptimizedHeap ---
+| Strategija | Gen Vreme | Sort Vreme | I/O Upis | Priprema (zid) | Core Vreme | Finalni upis | Ukupno Vreme | Peak RSS | Ispravno? |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| OptimizedHeap | 272 ms | 417 ms | 477 ms | 1202 ms | 1584 ms | 0 ms | 3301 ms | 37.67 MiB | PROLAZ |
+Raspon (minΓÇômax, 15 pon.): Priprema 1000ΓÇô1405 ms | Merge core 1554ΓÇô1619 ms | Finalni upis 0ΓÇô0 ms | Ukupno bez verif. 2597ΓÇô2992 ms (medijana 2821) | Peak RSS 37.6ΓÇô37.7 MiB
+┼╜ivi blokovi: max 1 (teorijska granica 1, sekvencijalno) ΓåÆ ~32 MiB podataka u letu
+Ulazni otisak: 5401f572beb93e6a (seed: identi─ìan kroz sva ponavljanja)
+Detaljne bele┼íke: Strategy: OptimizedHeap, Runs: 12, Emitovano: 1500000000, Pore─æenja: n/a (bez --count-ops), Refills: 3045, BatchWrites: 1440
+SUMMARY,f1-pocetak,OptimizedHeap,external,2821,2597,2992,1202,1584,38,PROLAZ
+
+=== f2-pipeline: + pipeline dubine 0 ===
+[*] Pokretanje My Radix LENS v1.2.2 (Power-of-2 Loser Tree Engine)...
+    Scenario: External
+    Ciljni disk/direktorijum: C:\temp_sort_pipe1
+    N (Elementi): 100000000
+    Veli─ìina bloka: 32 MiB
+    Bafer ─ìitanja run-ova: 2048 KiB
+    Izlazni bafer pisanja: 4096 KiB
+    Niti (Threads): 8
+    Ponavljanja: 15
+    Pipeline re┼╛im: true, Dubina: 0
+    fsync: false
+    Seed: 42
+    Brojanje pore─æenja: false
+    Sortiranje bloka: Std
+    RNG: Chacha
+    Writer niti: 1
+    Merge niti: sekvencijalno
+    Strategija: OptimizedHeap
+
+-------------------------------------------------------------
+  TESTIRANJE STRATEGIJE: OptimizedHeap
+-------------------------------------------------------------
+
+--- REZULTAT ZA STRATEGIJU: OptimizedHeap ---
+| Strategija | Gen Vreme | Sort Vreme | I/O Upis | Priprema (zid) | Core Vreme | Finalni upis | Ukupno Vreme | Peak RSS | Ispravno? |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| OptimizedHeap | 315 ms | 495 ms | 405 ms | 552 ms | 1608 ms | 0 ms | 2685 ms | 101.86 MiB | PROLAZ |
+Raspon (minΓÇômax, 15 pon.): Priprema 523ΓÇô656 ms | Merge core 1584ΓÇô1702 ms | Finalni upis 0ΓÇô1 ms | Ukupno bez verif. 2122ΓÇô2357 ms (medijana 2181) | Peak RSS 101.7ΓÇô101.9 MiB
+┼╜ivi blokovi: max 3 (teorijska granica 3 = 2 + 2┬╖depth + writers) ΓåÆ ~96 MiB podataka u letu
+Ulazni otisak: 5401f572beb93e6a (seed: identi─ìan kroz sva ponavljanja)
+Writer (1 niti; medijana po ponavljanju, ms; ─ìekanje/zauzet = zbir preko niti): ukupno 552 | ─ìekanje 115 | zauzet 432 = create 5 + write 398 + flush 0 + free 19 + close 9
+write_all po bloku: n=180 medijana 33.44 ms, max 69.78 ms
+BlockFree po bloku (writer): n=180 medijana 1.61 ms, max 2.65 ms
+BlockAlloc po bloku (generator, samo Vec::with_capacity; page fault-ovi su u Gen vremenu): n=180 medijana 0.01 ms, max 0.09 ms | zbir/pon. medijana 0 ms
+Detaljne bele┼íke: Strategy: OptimizedHeap, Runs: 12, Emitovano: 1500000000, Pore─æenja: n/a (bez --count-ops), Refills: 3045, BatchWrites: 1440
+SUMMARY,f2-pipeline,OptimizedHeap,external,2181,2122,2357,552,1608,102,PROLAZ
+
+=== f3-packed-loser-tree: + PackedLoserTree (sekvencijalni merge) ===
+[*] Pokretanje My Radix LENS v1.2.2 (Power-of-2 Loser Tree Engine)...
+    Scenario: External
+    Ciljni disk/direktorijum: C:\temp_sort_pipe1
+    N (Elementi): 100000000
+    Veli─ìina bloka: 32 MiB
+    Bafer ─ìitanja run-ova: 2048 KiB
+    Izlazni bafer pisanja: 4096 KiB
+    Niti (Threads): 8
+    Ponavljanja: 15
+    Pipeline re┼╛im: true, Dubina: 0
+    fsync: false
+    Seed: 42
+    Brojanje pore─æenja: false
+    Sortiranje bloka: Std
+    RNG: Chacha
+    Writer niti: 1
+    Merge niti: sekvencijalno
+    Strategija: PackedLoserTree
+
+-------------------------------------------------------------
+  TESTIRANJE STRATEGIJE: PackedLoserTree
+-------------------------------------------------------------
+
+--- REZULTAT ZA STRATEGIJU: PackedLoserTree ---
+| Strategija | Gen Vreme | Sort Vreme | I/O Upis | Priprema (zid) | Core Vreme | Finalni upis | Ukupno Vreme | Peak RSS | Ispravno? |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| PackedLoserTree | 392 ms | 594 ms | 439 ms | 655 ms | 895 ms | 0 ms | 2109 ms | 101.86 MiB | PROLAZ |
+Raspon (minΓÇômax, 15 pon.): Priprema 569ΓÇô709 ms | Merge core 830ΓÇô1042 ms | Finalni upis 0ΓÇô1 ms | Ukupno bez verif. 1430ΓÇô1736 ms (medijana 1571) | Peak RSS 101.7ΓÇô101.9 MiB
+┼╜ivi blokovi: max 3 (teorijska granica 3 = 2 + 2┬╖depth + writers) ΓåÆ ~96 MiB podataka u letu
+Ulazni otisak: 5401f572beb93e6a (seed: identi─ìan kroz sva ponavljanja)
+Writer (1 niti; medijana po ponavljanju, ms; ─ìekanje/zauzet = zbir preko niti): ukupno 654 | ─ìekanje 175 | zauzet 474 = create 6 + write 432 + flush 0 + free 25 + close 10
+write_all po bloku: n=180 medijana 35.97 ms, max 62.85 ms
+BlockFree po bloku (writer): n=180 medijana 2.18 ms, max 3.46 ms
+BlockAlloc po bloku (generator, samo Vec::with_capacity; page fault-ovi su u Gen vremenu): n=180 medijana 0.01 ms, max 0.06 ms | zbir/pon. medijana 0 ms
+Detaljne bele┼íke: Strategy: PackedLoserTree, Runs: 12, Emitovano: 1500000000, Pore─æenja: n/a (bez --count-ops), Refills: 3045, BatchWrites: 1440
+SUMMARY,f3-packed-loser-tree,PackedLoserTree,external,1571,1430,1736,655,895,102,PROLAZ
+
+=== f4-paralelni-merge: + paralelni merge, 8 niti ===
+[*] Pokretanje My Radix LENS v1.2.2 (Power-of-2 Loser Tree Engine)...
+    Scenario: External
+    Ciljni disk/direktorijum: C:\temp_sort_pipe1
+    N (Elementi): 100000000
+    Veli─ìina bloka: 32 MiB
+    Bafer ─ìitanja run-ova: 2048 KiB
+    Izlazni bafer pisanja: 4096 KiB
+    Niti (Threads): 8
+    Ponavljanja: 15
+    Pipeline re┼╛im: true, Dubina: 0
+    fsync: false
+    Seed: 42
+    Brojanje pore─æenja: false
+    Sortiranje bloka: Std
+    RNG: Chacha
+    Writer niti: 1
+    Merge niti: 8 (paralelni algoritam)
+    Strategija: PackedLoserTree
+
+-------------------------------------------------------------
+  TESTIRANJE STRATEGIJE: PackedLoserTree
+-------------------------------------------------------------
+
+--- REZULTAT ZA STRATEGIJU: PackedLoserTree ---
+| Strategija | Gen Vreme | Sort Vreme | I/O Upis | Priprema (zid) | Core Vreme | Finalni upis | Ukupno Vreme | Peak RSS | Ispravno? |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| PackedLoserTree | 381 ms | 582 ms | 431 ms | 641 ms | 206 ms | 0 ms | 1432 ms | 102.17 MiB | PROLAZ |
+Raspon (minΓÇômax, 15 pon.): Priprema 535ΓÇô707 ms | Merge core 175ΓÇô490 ms | Finalni upis 0ΓÇô0 ms | Ukupno bez verif. 765ΓÇô1355 ms (medijana 874) | Peak RSS 101.7ΓÇô102.3 MiB
+┼╜ivi blokovi: max 3 (teorijska granica 3 = 2 + 2┬╖depth + writers) ΓåÆ ~96 MiB podataka u letu
+Paralelni merge: 8 niti, najve─ça particija = 1.001├ù proseka (najgori slu─ìaj kroz ponavljanja)
+Ulazni otisak: 5401f572beb93e6a (seed: identi─ìan kroz sva ponavljanja)
+Writer (1 niti; medijana po ponavljanju, ms; ─ìekanje/zauzet = zbir preko niti): ukupno 641 | ─ìekanje 161 | zauzet 466 = create 6 + write 424 + flush 0 + free 24 + close 9
+write_all po bloku: n=180 medijana 35.52 ms, max 85.45 ms
+BlockFree po bloku (writer): n=180 medijana 2.14 ms, max 3.08 ms
+BlockAlloc po bloku (generator, samo Vec::with_capacity; page fault-ovi su u Gen vremenu): n=180 medijana 0.01 ms, max 0.06 ms | zbir/pon. medijana 0 ms
+Detaljne bele┼íke: Strategy: PackedLoserTree, Runs: 12, Emitovano: 1500000000, Pore─æenja: n/a (bez --count-ops), Refills: 25035, BatchWrites: 11520
+SUMMARY,f4-paralelni-merge,PackedLoserTree,external,874,765,1355,641,206,102,PROLAZ
+
+=== f5-radix-2-writera: + radix sort blokova, 2 writer niti ===
+[*] Pokretanje My Radix LENS v1.2.2 (Power-of-2 Loser Tree Engine)...
+    Scenario: External
+    Ciljni disk/direktorijum: C:\temp_sort_pipe1
+    N (Elementi): 100000000
+    Veli─ìina bloka: 32 MiB
+    Bafer ─ìitanja run-ova: 2048 KiB
+    Izlazni bafer pisanja: 4096 KiB
+    Niti (Threads): 8
+    Ponavljanja: 15
+    Pipeline re┼╛im: true, Dubina: 0
+    fsync: false
+    Seed: 42
+    Brojanje pore─æenja: false
+    Sortiranje bloka: Radix
+    RNG: Chacha
+    Writer niti: 2
+    Merge niti: 8 (paralelni algoritam)
+    Strategija: PackedLoserTree
+
+-------------------------------------------------------------
+  TESTIRANJE STRATEGIJE: PackedLoserTree
+-------------------------------------------------------------
+
+--- REZULTAT ZA STRATEGIJU: PackedLoserTree ---
+| Strategija | Gen Vreme | Sort Vreme | I/O Upis | Priprema (zid) | Core Vreme | Finalni upis | Ukupno Vreme | Peak RSS | Ispravno? |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| PackedLoserTree | 458 ms | 358 ms | 523 ms | 520 ms | 224 ms | 0 ms | 1370 ms | 131.82 MiB | PROLAZ |
+Raspon (minΓÇômax, 15 pon.): Priprema 461ΓÇô580 ms | Merge core 183ΓÇô302 ms | Finalni upis 0ΓÇô0 ms | Ukupno bez verif. 723ΓÇô870 ms (medijana 772) | Peak RSS 127.3ΓÇô166.4 MiB
+┼╜ivi blokovi: max 4 (teorijska granica 4 = 2 + 2┬╖depth + writers) ΓåÆ ~128 MiB podataka u letu
+Paralelni merge: 8 niti, najve─ça particija = 1.001├ù proseka (najgori slu─ìaj kroz ponavljanja)
+Ulazni otisak: 5401f572beb93e6a (seed: identi─ìan kroz sva ponavljanja)
+Writer (2 niti; medijana po ponavljanju, ms; ─ìekanje/zauzet = zbir preko niti): ukupno 520 | ─ìekanje 459 | zauzet 557 = create 7 + write 516 + flush 0 + free 24 + close 9
+write_all po bloku: n=180 medijana 42.59 ms, max 109.04 ms
+BlockFree po bloku (writer): n=180 medijana 2.16 ms, max 3.92 ms
+BlockAlloc po bloku (generator, samo Vec::with_capacity; page fault-ovi su u Gen vremenu): n=180 medijana 0.01 ms, max 0.06 ms | zbir/pon. medijana 0 ms
+Detaljne bele┼íke: Strategy: PackedLoserTree, Runs: 12, Emitovano: 1500000000, Pore─æenja: n/a (bez --count-ops), Refills: 25035, BatchWrites: 11520
+SUMMARY,f5-radix-2-writera,PackedLoserTree,external,772,723,870,520,224,132,PROLAZ
+
+=== f6-threads-6: + 6 rayon niti (preporuÄena konfiguracija) ===
+[*] Pokretanje My Radix LENS v1.2.2 (Power-of-2 Loser Tree Engine)...
+    Scenario: External
+    Ciljni disk/direktorijum: C:\temp_sort_pipe1
+    N (Elementi): 100000000
+    Veli─ìina bloka: 32 MiB
+    Bafer ─ìitanja run-ova: 2048 KiB
+    Izlazni bafer pisanja: 4096 KiB
+    Niti (Threads): 6
+    Ponavljanja: 15
+    Pipeline re┼╛im: true, Dubina: 0
+    fsync: false
+    Seed: 42
+    Brojanje pore─æenja: false
+    Sortiranje bloka: Radix
+    RNG: Chacha
+    Writer niti: 2
+    Merge niti: 8 (paralelni algoritam)
+    Strategija: PackedLoserTree
+
+-------------------------------------------------------------
+  TESTIRANJE STRATEGIJE: PackedLoserTree
+-------------------------------------------------------------
+
+--- REZULTAT ZA STRATEGIJU: PackedLoserTree ---
+| Strategija | Gen Vreme | Sort Vreme | I/O Upis | Priprema (zid) | Core Vreme | Finalni upis | Ukupno Vreme | Peak RSS | Ispravno? |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| PackedLoserTree | 387 ms | 394 ms | 1264 ms | 737 ms | 215 ms | 0 ms | 1562 ms | 165.93 MiB | PROLAZ |
+Raspon (minΓÇômax, 15 pon.): Priprema 469ΓÇô1062 ms | Merge core 173ΓÇô302 ms | Finalni upis 0ΓÇô0 ms | Ukupno bez verif. 702ΓÇô1310 ms (medijana 990) | Peak RSS 138.9ΓÇô166.0 MiB
+┼╜ivi blokovi: max 4 (teorijska granica 4 = 2 + 2┬╖depth + writers) ΓåÆ ~128 MiB podataka u letu
+Paralelni merge: 8 niti, najve─ça particija = 1.001├ù proseka (najgori slu─ìaj kroz ponavljanja)
+Ulazni otisak: 5401f572beb93e6a (seed: identi─ìan kroz sva ponavljanja)
+Writer (2 niti; medijana po ponavljanju, ms; ─ìekanje/zauzet = zbir preko niti): ukupno 737 | ─ìekanje 165 | zauzet 1292 = create 6 + write 1257 + flush 0 + free 19 + close 9
+write_all po bloku: n=180 medijana 92.16 ms, max 230.39 ms
+BlockFree po bloku (writer): n=180 medijana 1.53 ms, max 3.24 ms
+BlockAlloc po bloku (generator, samo Vec::with_capacity; page fault-ovi su u Gen vremenu): n=180 medijana 0.01 ms, max 0.07 ms | zbir/pon. medijana 0 ms
+Detaljne bele┼íke: Strategy: PackedLoserTree, Runs: 12, Emitovano: 1500000000, Pore─æenja: n/a (bez --count-ops), Refills: 25035, BatchWrites: 11520
+SUMMARY,f6-threads-6,PackedLoserTree,external,990,702,1310,737,215,166,PROLAZ

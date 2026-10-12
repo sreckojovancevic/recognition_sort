@@ -1,0 +1,12 @@
+﻿oznaka,opis,metoda,vrsta,ukupno_med_ms,min_ms,max_ms,priprema_med_ms,merge_med_ms,mem_mib,ispravno
+mem,"Standardni sortovi u memoriji (5 ponavljanja)",radix-lens-radix,in-memory,372,318,378,,,381,PROLAZ
+mem,"Standardni sortovi u memoriji (5 ponavljanja)",std-sort,in-memory,2613,2594,2645,,,191,PROLAZ
+mem,"Standardni sortovi u memoriji (5 ponavljanja)",std-sort-unstable,in-memory,1731,1728,1744,,,0,PROLAZ
+mem,"Standardni sortovi u memoriji (5 ponavljanja)",rayon-par-sort,in-memory,923,916,927,,,383,PROLAZ
+mem,"Standardni sortovi u memoriji (5 ponavljanja)",rayon-par-sort-unstable,in-memory,468,461,484,,,0,PROLAZ
+f1-pocetak,"OptimizedHeap, sekvencijalna priprema, std sort",OptimizedHeap,external,2821,2597,2992,1202,1584,38,PROLAZ
+f2-pipeline,"+ pipeline dubine 0",OptimizedHeap,external,2181,2122,2357,552,1608,102,PROLAZ
+f3-packed-loser-tree,"+ PackedLoserTree (sekvencijalni merge)",PackedLoserTree,external,1571,1430,1736,655,895,102,PROLAZ
+f4-paralelni-merge,"+ paralelni merge, 8 niti",PackedLoserTree,external,874,765,1355,641,206,102,PROLAZ
+f5-radix-2-writera,"+ radix sort blokova, 2 writer niti",PackedLoserTree,external,772,723,870,520,224,132,PROLAZ
+f6-threads-6,"+ 6 rayon niti (preporuÄena konfiguracija)",PackedLoserTree,external,990,702,1310,737,215,166,PROLAZ
